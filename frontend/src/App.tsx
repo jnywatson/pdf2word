@@ -136,6 +136,11 @@ export const App: React.FC = () => {
 
         if (res.ok) {
           const probeData = await res.json();
+          const probeError = probeData.encrypted
+            ? (lang === 'fr' ? 'Document protégé par mot de passe' : 'Document is password-protected')
+            : !probeData.is_valid
+              ? (probeData.error_message || (lang === 'fr' ? 'Ce fichier PDF est invalide ou illisible.' : 'This PDF is invalid or unreadable.'))
+              : undefined;
           setFiles(current =>
             current.map(item =>
               item.id === fItem.id
@@ -148,22 +153,38 @@ export const App: React.FC = () => {
                     isScanned: probeData.is_scanned,
                     needs_ocr: probeData.needs_ocr,
                     encrypted: probeData.encrypted,
-                    errorMessage: probeData.encrypted ? 'Document protégé par mot de passe' : undefined,
+                    status: probeError ? 'failed' : 'pending',
+                    errorMessage: probeError,
                   }
                 : item
             )
           );
         } else {
+          const errorData = await res.json().catch(() => ({}));
           setFiles(current =>
             current.map(item =>
-              item.id === fItem.id ? { ...item, probing: false } : item
+              item.id === fItem.id
+                ? {
+                    ...item,
+                    probing: false,
+                    status: 'failed',
+                    errorMessage: errorData.detail || (lang === 'fr' ? 'Impossible d’analyser ce fichier PDF.' : 'Could not analyze this PDF.'),
+                  }
+                : item
             )
           );
         }
       } catch {
         setFiles(current =>
           current.map(item =>
-            item.id === fItem.id ? { ...item, probing: false } : item
+            item.id === fItem.id
+              ? {
+                  ...item,
+                  probing: false,
+                  status: 'failed',
+                  errorMessage: lang === 'fr' ? 'Erreur réseau pendant l’analyse du PDF. Réessaie.' : 'Network error while analyzing the PDF. Please try again.',
+                }
+              : item
           )
         );
       }
@@ -182,7 +203,7 @@ export const App: React.FC = () => {
 
   // Start Conversion Process
   const handleStartConversion = async () => {
-    if (files.length === 0 || isConverting || hasEncryptedFile) return;
+    if (files.length === 0 || isConverting || hasEncryptedFile || files.some(f => f.probing || f.status === 'failed')) return;
 
     setIsConverting(true);
     setGlobalError(null);

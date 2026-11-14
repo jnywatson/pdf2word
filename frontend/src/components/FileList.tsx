@@ -51,6 +51,7 @@ export const FileList: React.FC<FileListProps> = ({
   };
 
   const hasScannedFiles = files.some(f => f.isScanned || f.is_scanned);
+  const conversionBlocked = files.some(f => f.probing || f.status === 'failed' || f.encrypted);
   const totalPages = files.reduce((acc, f) => acc + (f.pageCount || f.pages || 0), 0);
 
   return (
@@ -150,6 +151,11 @@ export const FileList: React.FC<FileListProps> = ({
                       </>
                     )}
                   </div>
+                  {fileItem.errorMessage && (
+                    <p className="mt-1 text-xs text-rose-600 dark:text-rose-400" role="alert">
+                      {fileItem.errorMessage}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -196,7 +202,7 @@ export const FileList: React.FC<FileListProps> = ({
       <div className="pt-2">
         <button
           onClick={onConvert}
-          disabled={isConverting || files.length === 0}
+          disabled={isConverting || files.length === 0 || conversionBlocked}
           className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-blue-500/25 active:scale-[0.99] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3 cursor-pointer"
         >
           {isConverting ? (
