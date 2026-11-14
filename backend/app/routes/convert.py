@@ -3,7 +3,7 @@ import uuid
 import time
 from pathlib import Path
 from typing import List, Optional
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Query
 
 from app.config import UPLOADS_DIR, OUTPUTS_DIR, load_settings
@@ -229,7 +229,11 @@ async def convert_batch_endpoint(
     successful = [r for r in results if r.status in ("completed", "success")]
     failed = [r for r in results if r.status == "failed"]
 
-    batch_url = "/api/download/batch/zip" if len(successful) > 1 else None
+    successful_filenames = [r.docx_filename for r in successful if r.docx_filename]
+    batch_url = None
+    if len(successful_filenames) > 1:
+        query = urlencode([("files", filename) for filename in successful_filenames])
+        batch_url = f"/api/download-all?{query}"
 
     return BatchConversionResponse(
         success=len(successful) > 0,
