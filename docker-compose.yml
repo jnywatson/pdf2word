@@ -1,0 +1,23 @@
+services:
+  pdf2word:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pdf2word-pro
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - TESSERACT_CMD=/usr/bin/tesseract
+      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+      - CORS_ORIGINS=*
+      - MAX_FILE_SIZE_MB=100
+      - OCR_DPI=300
+    volumes:
+      # Persistent storage for converted documents and conversion history
+      - pdf2word-storage:/app/storage
+
+volumes:
+  pdf2word-storage:
+    driver: local

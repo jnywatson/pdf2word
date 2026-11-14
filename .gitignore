@@ -1,0 +1,33 @@
+# Python
+.venv/
+__pycache__/
+backend/tests/
+*.py[cod]
+*$py.class
+*.so
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+.npm
+.eslintcache
+
+# Storage runtime files
+storage/uploads/*
+storage/outputs/*
+storage/temp/*
+storage/history.json
+storage/settings.json
+!storage/uploads/.gitkeep
+!storage/outputs/.gitkeep
+!storage/temp/.gitkeep
+
+# Logs & Environment
+*.log
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp

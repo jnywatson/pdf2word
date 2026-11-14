@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+storage/uploads/*
+storage/temp/*
+!storage/uploads/.gitkeep
+!storage/temp/.gitkeep
+frontend/node_modules/
+.git/
+.vscode/
+.idea/
+*.log

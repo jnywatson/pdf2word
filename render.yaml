@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pdf2word-pro
+    runtime: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: MAX_FILE_SIZE_MB
+        value: 50
